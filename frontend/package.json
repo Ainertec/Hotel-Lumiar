@@ -1,0 +1,38 @@
+{
+  "name": "electron-quick-start",
+  "version": "1.0.0",
+  "description": "A minimal Electron application",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "win64": "electron-packager . myApp --platform=win32 --arch=x64"
+  },
+  "repository": "https://github.com/electron/electron-quick-start",
+  "keywords": [
+    "Electron",
+    "quick",
+    "start",
+    "tutorial",
+    "demo"
+  ],
+  "author": "GitHub",
+  "license": "CC0-1.0",
+  "devDependencies": {
+    "electron": "^7.1.4",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "prettier": "^2.0.5"
+  },
+  "dependencies": {
+    "axios": "^0.19.0",
+    "boostrap": "^2.0.0",
+    "bootstrap": "^4.5.0",
+    "date-fns": "^2.14.0",
+    "highcharts": "^8.1.2",
+    "jquery": "^3.5.1",
+    "popper.js": "^1.16.1",
+    "socket.io-client": "^2.3.1"
+  }
+}

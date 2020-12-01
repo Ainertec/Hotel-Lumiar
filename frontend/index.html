@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href="fontawesome-free/css/all.css" rel="stylesheet">
+  <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <title>Hotel Lumiar</title>
+  <style>
+    body {
+      background-color: #3F48CC;
+    }
+
+    .iconsTam {
+      font-size: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+
+    <img src="img/logo.png" class="rounded mx-auto d-block" style="width: 100px; margin-top: 35vh;" alt="...">
+    <img src="./img/loading.gif" class="rounded mx-auto d-block" style="height: 40px; width: 40px; margin-top: 20px;">
+    <div id="mensagemDeErro" style="margin-top:50px;" class="text-center"></div>
+
+  </div>
+
+  <script src="./serial/Serial.js"></script>
+  <script src="./classes/Requisicao.js"></script>
+
+  <script>
+    function mensagemDeErro(msg) {
+      document.getElementById('mensagemDeErro').innerHTML = '<span class="badge badge-danger h5">' + msg + '</span>'
+    };
+  </script>
+  <script>
+    setTimeout(function () { window.location.href = "./home.html"; }, 3000);
+  </script>
+
+
+</body>
+
+</html>
