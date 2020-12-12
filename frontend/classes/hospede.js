@@ -55,7 +55,7 @@ function telaHospede(id) {
                                         </div>
                                         <div class="form-group col-md-6">
                                             <label for="obsHospede" class="text-primary"><span class="fas fa-info"></span> Observação:</label>
-                                            <input type="text" class="form-control" id="obsHospede" placeholder="Observação">
+                                            <input type="text" class="form-control" id="obsHospede" placeholder="Observação" value="Nenhuma.">
                                         </div>
                                     </div>
                                     <div class="form-row">
@@ -136,7 +136,7 @@ function modalExibirDadosHospede(id) {
                                 </button>
                                 <div id="mensagemDeErroModal" class="justify-content-center"></div>
                             </div>
-                            <div class="modal-body">
+                            <div class="modal-body" id="dadosHospedeImpressao">
 
                                 <div class="container">
                                     <div class="row">
@@ -202,11 +202,14 @@ function modalExibirDadosHospede(id) {
                                         </div>
                                     </div>
                                     <div class="mx-auto">
-                                        <button type="button" onclick="carregarDadosHospede('${dado._id}');" data-dismiss="modal" class="btn btn-primary btn-sm" style="margin-top:20px;">
+                                        <button type="button" onclick="carregarDadosHospede('${dado._id}');" data-dismiss="modal" class="btn btn-outline-primary btn-sm" style="margin-top:20px;">
                                             <span class="fas fa-edit"></span> Editar hospede
                                         </button>
-                                        <button type="button" onclick="excluirHospede('${dado._id}');" class="btn btn-outline-danger btn-sm" data-dismiss="modal" style="margin-top:20px;">
+                                        <button type="button" onclick="confirmarAcao('Excluir este hospede!','excluirHospede(this.value)','${dado._id}');" class="btn btn-outline-danger btn-sm" data-dismiss="modal" style="margin-top:20px;">
                                             <span class="fas fa-trash"></span> Excluir hospede
+                                        </button>
+                                        <button type="button" onclick="imprimirImpressora('dadosHospedeImpressao')" class="btn btn-outline-warning btn-sm" style="margin-top:20px;">
+                                            <span class="fas fa-print"></span> Imprimir dados
                                         </button>
                                     </div>
 
@@ -332,62 +335,90 @@ function adicionarHospedagem(id) {
         quarto: document.getElementById('numeroQuartoHospede').value,
         valor: document.getElementById('valorHospedagem').value,
     })
+
+    $('#modalClasseHospede').modal('hide');
+    document.getElementById(`modal`).innerHTML = ``;
+    modalExibirDadosHospede(dado._id);
 }
 
 //funcao responsavel por cadastrar o hospede
-function cadastrarHospede() {
-    let dado = {
-        nome: document.getElementById('nomeHospede').value,
-        endereco: document.getElementById('enderecoHospede').value,
-        bairro: document.getElementById('bairroHospede').value,
-        cidade: document.getElementById('cidadeHospede').value,
-        cep: document.getElementById('cepHospede').value,
-        celular: document.getElementById('celularHospede').value,
-        cpf: document.getElementById('cpfHospede').value,
-        observacao: document.getElementById('obsHospede').value,
-        email: document.getElementById('emailHospede').value,
-        nascimento: document.getElementById('nascimentoHospede').value,
-        carro: document.getElementById('carroHospede').value,
-        placa: document.getElementById('placaCarroHospede').value,
-        acompanhante: document.getElementById('acompanhanteHospede').value,
-        hospedagem: [],
-    }
+async function cadastrarHospede() {
+    try {
+        let dado = {
+            nome: document.getElementById('nomeHospede').value,
+            endereco: document.getElementById('enderecoHospede').value,
+            bairro: document.getElementById('bairroHospede').value,
+            cidade: document.getElementById('cidadeHospede').value,
+            cep: document.getElementById('cepHospede').value,
+            celular: document.getElementById('celularHospede').value,
+            cpf: document.getElementById('cpfHospede').value,
+            observacao: document.getElementById('obsHospede').value,
+            email: document.getElementById('emailHospede').value,
+            nascimento: document.getElementById('nascimentoHospede').value,
+            carro: document.getElementById('carroHospede').value,
+            placa: document.getElementById('placaCarroHospede').value,
+            acompanhante: document.getElementById('acompanhanteHospede').value,
+            hospedagem: [],
+        }
 
-    console.log(dado)
-    dado._id = parseInt(VETORDEHOSPEDES.length + 1);
-    VETORDEHOSPEDES.push(dado)
+        await aguardeCarregamento(true);
+        console.log(dado)
+        dado._id = parseInt(VETORDEHOSPEDES.length + 1);
+        VETORDEHOSPEDES.push(dado)
+        mensagemDeAviso(`Hospede cadastrado com sucesso!`);
+        $('#modalClasseHospede').modal('hide');
+        document.getElementById('modal').innerHTML = ``;
+        modalExibirDadosHospede(dado._id);
+        await aguardeCarregamento(false);
+    } catch (error) {
+        mensagemDeErro(`Erro ao salvar dados do hospede!`);
+    }
 }
 
 //funcao responsavel por atualizar o hospede
-function atualizarHospede(id) {
-    let dado = VETORDEHOSPEDES.find((element) => element._id == id);
+async function atualizarHospede(id) {
+    try {
+        let dado = VETORDEHOSPEDES.find((element) => element._id == id);
 
-    dado.nome = document.getElementById('nomeHospede').value;
-    dado.endereco = document.getElementById('enderecoHospede').value;
-    dado.bairro = document.getElementById('bairroHospede').value;
-    dado.cidade = document.getElementById('cidadeHospede').value;
-    dado.cep = document.getElementById('cepHospede').value;
-    dado.celular = document.getElementById('celularHospede').value;
-    dado.cpf = document.getElementById('cpfHospede').value;
-    dado.observacao = document.getElementById('obsHospede').value;
-    dado.email = document.getElementById('emailHospede').value;
-    dado.nascimento = document.getElementById('nascimentoHospede').value;
-    dado.carro = document.getElementById('carroHospede').value;
-    dado.placa = document.getElementById('placaCarroHospede').value;
-    dado.acompanhante = document.getElementById('acompanhanteHospede').value;
-    dado.hospedagem
+        dado.nome = document.getElementById('nomeHospede').value;
+        dado.endereco = document.getElementById('enderecoHospede').value;
+        dado.bairro = document.getElementById('bairroHospede').value;
+        dado.cidade = document.getElementById('cidadeHospede').value;
+        dado.cep = document.getElementById('cepHospede').value;
+        dado.celular = document.getElementById('celularHospede').value;
+        dado.cpf = document.getElementById('cpfHospede').value;
+        dado.observacao = document.getElementById('obsHospede').value;
+        dado.email = document.getElementById('emailHospede').value;
+        dado.nascimento = document.getElementById('nascimentoHospede').value;
+        dado.carro = document.getElementById('carroHospede').value;
+        dado.placa = document.getElementById('placaCarroHospede').value;
+        dado.acompanhante = document.getElementById('acompanhanteHospede').value;
+        dado.hospedagem
 
-    console.log(dado)
-
-    let posicao = VETORDEHOSPEDES.findIndex((element) => element._id == id);
-
-    VETORDEHOSPEDES[posicao] = dado;
-
+        await aguardeCarregamento(true);
+        console.log(dado)
+        let posicao = VETORDEHOSPEDES.findIndex((element) => element._id == id);
+        VETORDEHOSPEDES[posicao] = dado;
+        mensagemDeAviso(`Dados do Hospede atualizado com sucesso!`);
+        document.getElementById('modal').innerHTML = ``;
+        modalExibirDadosHospede(dado._id);
+        await aguardeCarregamento(false);
+    } catch (error) {
+        mensagemDeErro(`Erro ao atualizar dados do hospede!`)
+    }
 }
 
 //funcao responsavel por apagar o hospede
-function excluirHospede(id) {
-    let posicao = VETORDEHOSPEDES.findIndex((element) => element._id == id);
+async function excluirHospede(id) {
+    try {
+        let posicao = VETORDEHOSPEDES.findIndex((element) => element._id == id);
 
-    delete VETORDEHOSPEDES[posicao];
+        await aguardeCarregamento(true);
+        delete VETORDEHOSPEDES[posicao];
+        mensagemDeAviso(`Hospede excluído com sucesso!`);
+        document.getElementById('modal').innerHTML = ``;
+        await aguardeCarregamento(false);
+    } catch (error) {
+        mensagemDeErro(`Erro ao excluir hospede!`)
+    }
 }
