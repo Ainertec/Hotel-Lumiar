@@ -1,30 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { GuestInterface } from '../../interfaces/base';
-
-/*export interface IAddress extends Document {
-  district: string;
-  street: string;
-  reference: string;
-  number: number;
-};
-
-export interface IUser {
-  name: string;
-  username: string;
-  password: string;
-  question: string;
-  response: string;
-  address?: IAddress[];
-  phone: string[];
-};*/
-
-const AccommodationSchema = new Schema({
-  reference: {
-    type: Schema.Types.ObjectId,
-    ref: 'Accommodation',
-    required: true,
-  }
-});
+import Accommodation from './Accommodation';
 
 const AddressSchema = new Schema({
   district: {
@@ -88,11 +64,30 @@ const GuestSchema = new Schema(
     },
     car: CarSchema,
     address: AddressSchema,
-    accommodations: [AccommodationSchema],
+    accommodations: [
+      {
+      type: Schema.Types.ObjectId,
+      ref: 'Accommodation',
+      required: true
+      }
+    ],
   },
   {
     timestamps: true,
   },
 );
+
+
+GuestSchema.post<GuestInterface>(
+  'findOneAndDelete',
+  async document => {
+    if (document) {
+      const accommodationID = document.accommodations;
+
+      for (const accommodation of accommodationID) {
+        await Accommodation.deleteOne({_id: accommodation});
+      } 
+    }
+  })
 
 export default model<GuestInterface>('Guest', GuestSchema);
