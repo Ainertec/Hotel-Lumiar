@@ -10,7 +10,7 @@ class GuestController {
   }
 
   async index(request: Request, response: Response) {
-    const guests = await Guest.find({}).populate('accommodations.reference');
+    const guests = await Guest.find({}).populate('accommodations');
     return response.json(guests);
   }
 
@@ -19,7 +19,7 @@ class GuestController {
 
     const guests = await Guest.find({
       name: { $regex: new RegExp(name), $options: 'i' },
-    }).populate('accommodations.reference')
+    }).populate('accommodations')
 
     return response.json(guests);
   }
@@ -38,7 +38,7 @@ class GuestController {
       escort,
       accommodations,
     });
-    await guest.populate('accommodations.reference').execPopulate();
+    await guest.populate('accommodations').execPopulate();
     return response.json(guest);
   }
 
@@ -66,7 +66,7 @@ class GuestController {
 
     await guest.save();
 
-    await guest.populate('accommodations.reference').execPopulate();
+    await guest.populate('accommodations').execPopulate();
 
     return response.json(guest);
   }
@@ -74,7 +74,7 @@ class GuestController {
   async delete(request: Request, response: Response) {
     const { id } = request.params;
 
-    await Guest.deleteOne({ _id: id });
+    await Guest.findOneAndDelete({ _id: id });
 
     return response.status(200).send();
   }
