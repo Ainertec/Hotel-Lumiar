@@ -103,21 +103,31 @@ function telaHospede(id) {
 }
 
 //funcao responsavel por gerar a lista de hospedes de acordo com a busca
-function gerarListaDeHospedes() {
-    let codigoHTML = ``;
+async function gerarListaDeHospedes(tipo) {
+    let codigoHTML = ``, json = null;
+
+    VETORDEHOSPEDES = [];
+
+    if (tipo == 'nome') {
+        json = await requisicaoGET(`guests/${document.getElementById('nomeDoHospede').value}`, null);
+    } else if (tipo == 'todos') {
+        json = await requisicaoGET(`guests`, null);
+    }
 
     codigoHTML += `<div class="list-group">`
-    for (let hospede of VETORDEHOSPEDES) {
+    for (let hospede of json.data) {
+        VETORDEHOSPEDES.push(hospede)
         codigoHTML += `<a href="#" onclick="modalExibirDadosHospede('${hospede._id}');" class="list-group-item list-group-item-action list-group-item-warning shadow-lg p-3 mb-2">
                         <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">Nome: ${hospede.nome}</h5>
-                            <small>Celular: ${hospede.celular}</small>
+                            <h5 class="mb-1">Nome: ${hospede.name}</h5>
+                            <small>Celular: ${hospede.phone}</small>
                         </div>
-                        <p class="mb-1">CPF: ${hospede.cpf}</small></p>
+                        <p class="mb-1">CPF: ${hospede.identification}</small></p>
                     </a>`
     }
     codigoHTML += `</div>`
 
+    document.getElementById(`listaDeHospedes`).innerHTML = ``;
     document.getElementById(`listaDeHospedes`).innerHTML = codigoHTML;
 }
 
@@ -142,39 +152,39 @@ function modalExibirDadosHospede(id) {
                                     <div class="row">
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-id-card"></span> Nome:</label>
-                                            <h6>${dado.nome}</h6>
+                                            <h6>${dado.name}</h6>
                                         </div>
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-map-marker-alt"></span> Endereço:</label>
-                                            <h6>${dado.endereco}</h6>
+                                            <h6>${dado.address.street}</h6>
                                         </div>
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-map-marker-alt"></span> Bairro:</label>
-                                            <h6>${dado.bairro}</h6>
+                                            <h6>${dado.address.district}</h6>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-map-marker-alt"></span> Cidade:</label>
-                                            <h6>${dado.cidade}</h6>
+                                            <h6>${dado.address.city}</h6>
                                         </div>
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-map-marker-alt"></span> CEP:</label>
-                                            <h6>${dado.cep}</h6>
+                                            <h6>${dado.address.cep}</h6>
                                         </div>
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-phone-volume"></span> Celular:</label>
-                                            <h6>${dado.celular}</h6>
+                                            <h6>${dado.phone}</h6>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-id-card"></span> CPF:</label>
-                                            <h6>${dado.cpf}</h6>
+                                            <h6>${dado.identification}</h6>
                                         </div>
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-info"></span> Observação:</label>
-                                            <h6>${dado.observacao}</h6>
+                                            <h6>${dado.note}</h6>
                                         </div>
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-at"></span> Email:</label>
@@ -184,21 +194,21 @@ function modalExibirDadosHospede(id) {
                                     <div class="row">
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-calendar-alt"></span> Data de nascimento:</label>
-                                            <h6>${dado.nascimento}</h6>
+                                            <h6>${dado.dateBirth}</h6>
                                         </div>
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-car"></span> Carro:</label>
-                                            <h6>${dado.carro}</h6>
+                                            <h6>${dado.car.model}</h6>
                                         </div>
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-car"></span> Placa do carro:</label>
-                                            <h6>${dado.placa}</h6>
+                                            <h6>${dado.car.plate}</h6>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-user-friends"></span> Acompanhante:</label>
-                                            <h6>${dado.acompanhante}</h6>
+                                            <h6>${dado.escort}</h6>
                                         </div>
                                     </div>
                                     <div class="mx-auto">
@@ -237,12 +247,12 @@ function modalExibirDadosHospede(id) {
                                                 </tr>
                                             </thead>
                                             <tbody>`
-    for (let hospedagem of dado.hospedagem) {
+    for (let hospedagem of dado.accommodations) {
         codigoHTML += `<tr>
                                                 <th><span class="badge badge-success">${hospedagem.checkin}</span></th>
                                                 <th><span class="badge badge-warning">${hospedagem.checkout}</span></th>
-                                                <th>Nº ${hospedagem.quarto}</th>
-                                                <th class="text-danger">R$${(parseFloat(hospedagem.valor)).toFixed(2)}</th>
+                                                <th>Nº ${hospedagem.fourth}</th>
+                                                <th class="text-danger">R$${(parseFloat(hospedagem.price)).toFixed(2)}</th>
                                                 <td>
                                                     <button type="button" class="btn btn-primary btn-sm">
                                                         <span class="fas fa-edit"></span> Editar
@@ -310,19 +320,19 @@ function carregarDadosHospede(id) {
 
     let dado = VETORDEHOSPEDES.find((element) => element._id == id);
 
-    document.getElementById('nomeHospede').value = dado.nome;
-    document.getElementById('enderecoHospede').value = dado.endereco;
-    document.getElementById('bairroHospede').value = dado.bairro;
-    document.getElementById('cidadeHospede').value = dado.cidade;
-    document.getElementById('cepHospede').value = dado.cep;
-    document.getElementById('celularHospede').value = dado.celular;
-    document.getElementById('cpfHospede').value = dado.cpf;
-    document.getElementById('obsHospede').value = dado.observacao;
+    document.getElementById('nomeHospede').value = dado.name;
+    document.getElementById('enderecoHospede').value = dado.address.street;
+    document.getElementById('bairroHospede').value = dado.address.district;
+    document.getElementById('cidadeHospede').value = dado.address.city;
+    document.getElementById('cepHospede').value = dado.address.cep;
+    document.getElementById('celularHospede').value = dado.phone;
+    document.getElementById('cpfHospede').value = dado.identification;
+    document.getElementById('obsHospede').value = dado.note;
     document.getElementById('emailHospede').value = dado.email;
-    document.getElementById('nascimentoHospede').value = dado.nascimento;
-    document.getElementById('carroHospede').value = dado.carro;
-    document.getElementById('placaCarroHospede').value = dado.placa;
-    document.getElementById('acompanhanteHospede').value = dado.acompanhante;
+    document.getElementById('nascimentoHospede').value = dado.dateBirth;
+    document.getElementById('carroHospede').value = dado.car.model;
+    document.getElementById('placaCarroHospede').value = dado.car.plate;
+    document.getElementById('acompanhanteHospede').value = dado.escort;
 }
 
 //funcao responsavel por adicionar uma hospedagem
@@ -345,30 +355,34 @@ function adicionarHospedagem(id) {
 async function cadastrarHospede() {
     try {
         let dado = {
-            nome: document.getElementById('nomeHospede').value,
-            endereco: document.getElementById('enderecoHospede').value,
-            bairro: document.getElementById('bairroHospede').value,
-            cidade: document.getElementById('cidadeHospede').value,
-            cep: document.getElementById('cepHospede').value,
-            celular: document.getElementById('celularHospede').value,
-            cpf: document.getElementById('cpfHospede').value,
-            observacao: document.getElementById('obsHospede').value,
+            name: document.getElementById('nomeHospede').value,
+            address: {
+                street: document.getElementById('enderecoHospede').value,
+                district: document.getElementById('bairroHospede').value,
+                city: document.getElementById('cidadeHospede').value,
+                cep: document.getElementById('cepHospede').value,
+            },
+            phone: document.getElementById('celularHospede').value,
+            identification: document.getElementById('cpfHospede').value,
+            note: document.getElementById('obsHospede').value,
             email: document.getElementById('emailHospede').value,
-            nascimento: document.getElementById('nascimentoHospede').value,
-            carro: document.getElementById('carroHospede').value,
-            placa: document.getElementById('placaCarroHospede').value,
-            acompanhante: document.getElementById('acompanhanteHospede').value,
-            hospedagem: [],
+            dateBirth: document.getElementById('nascimentoHospede').value,
+            car: {
+                model: document.getElementById('carroHospede').value,
+                plate: document.getElementById('placaCarroHospede').value,
+            },
+            escort: document.getElementById('acompanhanteHospede').value,
+            accommodations: [],
         }
 
         await aguardeCarregamento(true);
-        console.log(dado)
-        dado._id = parseInt(VETORDEHOSPEDES.length + 1);
-        VETORDEHOSPEDES.push(dado)
+        let result = await requisicaoPOST(`guests`, dado, null);
         mensagemDeAviso(`Hospede cadastrado com sucesso!`);
         $('#modalClasseHospede').modal('hide');
         document.getElementById('modal').innerHTML = ``;
-        modalExibirDadosHospede(dado._id);
+        VETORDEHOSPEDES = [];
+        VETORDEHOSPEDES.push(result.data);
+        modalExibirDadosHospede(result.data._id);
         await aguardeCarregamento(false);
     } catch (error) {
         mensagemDeErro(`Erro ao salvar dados do hospede!`);
@@ -380,28 +394,33 @@ async function atualizarHospede(id) {
     try {
         let dado = VETORDEHOSPEDES.find((element) => element._id == id);
 
-        dado.nome = document.getElementById('nomeHospede').value;
-        dado.endereco = document.getElementById('enderecoHospede').value;
-        dado.bairro = document.getElementById('bairroHospede').value;
-        dado.cidade = document.getElementById('cidadeHospede').value;
-        dado.cep = document.getElementById('cepHospede').value;
-        dado.celular = document.getElementById('celularHospede').value;
-        dado.cpf = document.getElementById('cpfHospede').value;
-        dado.observacao = document.getElementById('obsHospede').value;
+        dado.name = document.getElementById('nomeHospede').value;
+        dado.address.street = document.getElementById('enderecoHospede').value;
+        dado.address.district = document.getElementById('bairroHospede').value;
+        dado.address.city = document.getElementById('cidadeHospede').value;
+        dado.address.cep = document.getElementById('cepHospede').value;
+        dado.phone = document.getElementById('celularHospede').value;
+        dado.identification = document.getElementById('cpfHospede').value;
+        dado.note = document.getElementById('obsHospede').value;
         dado.email = document.getElementById('emailHospede').value;
-        dado.nascimento = document.getElementById('nascimentoHospede').value;
-        dado.carro = document.getElementById('carroHospede').value;
-        dado.placa = document.getElementById('placaCarroHospede').value;
-        dado.acompanhante = document.getElementById('acompanhanteHospede').value;
-        dado.hospedagem
+        dado.dateBirth = document.getElementById('nascimentoHospede').value;
+        dado.car.model = document.getElementById('carroHospede').value;
+        dado.car.plate = document.getElementById('placaCarroHospede').value;
+        dado.escort = document.getElementById('acompanhanteHospede').value;
+        dado.accommodations
+
+        delete dado._id;
+        delete dado.address._id;
+        delete dado.car._id;
+        delete dado.__v;
+        delete dado.createdAt;
+        delete dado.updatedAt;
 
         await aguardeCarregamento(true);
-        console.log(dado)
-        let posicao = VETORDEHOSPEDES.findIndex((element) => element._id == id);
-        VETORDEHOSPEDES[posicao] = dado;
+        let result = await requisicaoPUT(`guests/${id}`, dado, null)
         mensagemDeAviso(`Dados do Hospede atualizado com sucesso!`);
         document.getElementById('modal').innerHTML = ``;
-        modalExibirDadosHospede(dado._id);
+        modalExibirDadosHospede(result._id);
         await aguardeCarregamento(false);
     } catch (error) {
         mensagemDeErro(`Erro ao atualizar dados do hospede!`)
@@ -414,7 +433,7 @@ async function excluirHospede(id) {
         let posicao = VETORDEHOSPEDES.findIndex((element) => element._id == id);
 
         await aguardeCarregamento(true);
-        delete VETORDEHOSPEDES[posicao];
+        await requisicaoDELETE(`guests/${id}`, '', null)
         mensagemDeAviso(`Hospede excluído com sucesso!`);
         document.getElementById('modal').innerHTML = ``;
         await aguardeCarregamento(false);

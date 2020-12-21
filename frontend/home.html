@@ -53,12 +53,12 @@
             <div class="input-group mb-3">
               <input id="nomeDoHospede" type="text" class="form-control form-control-sm mousetrap"
                 placeholder="Nome do hospede">
-              <button onclick="" type="button" class="btn btn-outline-info btn-sm">
+              <button onclick="gerarListaDeHospedes('nome');" type="button" class="btn btn-outline-info btn-sm">
                 <span class="fas fa-search"></span> Buscar
               </button>
               <br />
-              <button onclick="gerarListaDeHospedes();" type="button" class="btn btn-outline-info btn-block btn-sm"
-                style="margin-top:10px;">
+              <button onclick="gerarListaDeHospedes('todos');" type="button"
+                class="btn btn-outline-info btn-block btn-sm" style="margin-top:10px;">
                 <span class="fas fa-search-plus"></span> Exibir todos
               </button>
             </div>
@@ -82,6 +82,7 @@
 
   </div>
 
+  <script src="./classes/Requisicao.js"></script>
   <script src="./classes/Hospede.js"></script>
   <script src="./classes/Funcionalidade.js"></script>
   <script src="./classes/Hospedagem.js"></script>
