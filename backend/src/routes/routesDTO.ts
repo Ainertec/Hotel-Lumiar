@@ -7,13 +7,6 @@ interface IParamName {
 interface IParamId {
   id: Joi.AnySchema;
 }
-interface IParamIdentification {
-  identification: Joi.StringSchema;
-}
-interface IParamDeliveryman {
-  deliveryman: Joi.StringSchema;
-}
-
 export interface IValidationsGuest {
   paramName: IParamName;
   guest: Joi.ObjectSchema;

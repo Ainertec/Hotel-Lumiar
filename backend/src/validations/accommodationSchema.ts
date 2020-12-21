@@ -1,11 +1,10 @@
 import { Joi } from 'celebrate';
 
 const accommodation = Joi.object().keys({
-  name: Joi.string().required(),
-  description: Joi.string(),
+  checkin: Joi.string().required(),
+  checkout: Joi.string().required(),
+  fourth: Joi.string().required(),
   price: Joi.number().required(),
-  stock: Joi.number().required(),
-  unit: Joi.string().required(),
 });
 
 export default accommodation;

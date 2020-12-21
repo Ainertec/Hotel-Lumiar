@@ -1,32 +1,27 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /* eslint-disable no-param-reassign */
-import { Schema, model } from 'mongoose';
-import { AccommodationInterface, GuestInterface } from '../../interfaces/base';
-import Guest from './Guest';
-
-const AccommodationSchema = new Schema<AccommodationInterface>(
-  {
+const mongoose_1 = require("mongoose");
+const AccommodationSchema = new mongoose_1.Schema({
     checkin: {
-      type: String,
-      required: true,
+        type: String,
+        required: true,
     },
     checkout: {
-      type: String,
-      required: true,
+        type: String,
+        required: true,
     },
     fourth: {
-      type: String,
-      required: true,
+        type: String,
+        required: true,
     },
     price: {
-      type: Number,
-      required: true,
+        type: Number,
+        required: true,
     },
-  },
-  {
+}, {
     timestamps: true,
-  },
-);
-
+});
 /*AccommodationSchema.post<AccommodationInterface>(
   'findOneAndUpdate',
   async document => {
@@ -44,7 +39,6 @@ const AccommodationSchema = new Schema<AccommodationInterface>(
     }
   },
 );*/
-
 /*AccommodationSchema.post<AccommodationInterface>(
   'findOneAndRemove',
   async document => {
@@ -65,5 +59,4 @@ const AccommodationSchema = new Schema<AccommodationInterface>(
     }
   },
 );*/
-
-export default model<AccommodationInterface>('Accommodation', AccommodationSchema);
+exports.default = mongoose_1.model('Accommodation', AccommodationSchema);

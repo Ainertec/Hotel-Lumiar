@@ -7,12 +7,6 @@ export class AccommodationRoutes {
   constructor(private routes: Router) { }
 
   getRoutes(validations: IValidationsAccommodation) {
-    this.routes.get('/accommodations', AccommodationController.index);
-    this.routes.get(
-      '/accommodations/:name',
-      celebrate({ params: validations.paramName }),
-      AccommodationController.show,
-    );
     this.routes.post(
       '/accommodations',
       celebrate({ body: validations.accommodation }),

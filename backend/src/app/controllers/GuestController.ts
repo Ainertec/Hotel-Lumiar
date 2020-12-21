@@ -25,32 +25,40 @@ class GuestController {
   }
 
   async store(request: Request, response: Response) {
-    const { name, price, description, accommodations, available, image } = request.body;
+    const { name, address, phone, identification, note, email, dateBirth, car, escort, accommodations } = request.body;
     const guest = await Guest.create({
       name,
-      price,
-      description,
+      address,
+      phone,
+      identification,
+      note,
+      email,
+      dateBirth,
+      car,
+      escort,
       accommodations,
-      available,
-      image,
     });
     await guest.populate('accommodations.reference').execPopulate();
     return response.json(guest);
   }
 
   async update(request: Request, response: Response) {
-    const { name, price, accommodations, description, available, image } = request.body;
+    const { name, address, phone, identification, note, email, dateBirth, car, escort, accommodations } = request.body;
     const { id } = request.params;
 
     const guest = await Guest.findOneAndUpdate(
       { _id: id },
       {
         name,
-        price,
-        description,
+        address,
+        phone,
+        identification,
+        note,
+        email,
+        dateBirth,
+        car,
+        escort,
         accommodations,
-        available,
-        image,
       },
       { new: true },
     );
