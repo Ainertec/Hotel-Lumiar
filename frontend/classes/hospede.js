@@ -1,7 +1,7 @@
 //------------------------------------------------- Classe hospede -----------------------------------------
 
 //vetor responsavel por gerar o vetor de hospedes
-let VETORDEHOSPEDES = [], VETORDEHOSPEDAGEM = [];
+let VETORDEHOSPEDES = [];
 
 //funcao responsavel por gerar a tela de cadastro e atualizacao de hospede
 function telaHospede(id) {
@@ -230,7 +230,7 @@ function modalExibirDadosHospede(id) {
                                         <h5 class="text-center">Lista de hospedagem</h5>
 
                                         <div class="col-8 mx-auto">
-                                            <button type="button" onclick="$('#areaDeListagemDeHospedagem').fadeOut(); $('#areaDeAdicionarHospedagem').fadeIn();" class="btn btn-primary btn-block" style="margin-top:20px;">
+                                            <button type="button" onclick="$('#areaDeListagemDeHospedagem').fadeOut(); $('#areaDeAdicionarHospedagem').fadeIn(); telaDeHospedagem('${dado._id}', 'cadastrar');" class="btn btn-primary btn-block" style="margin-top:20px;">
                                                 <span class="fas fa-plus"></span> Adicionar nova hospedagem <span class="fas fa-bed"></span>
                                             </button>
                                         </div>
@@ -254,12 +254,12 @@ function modalExibirDadosHospede(id) {
                                                 <th>Nº ${hospedagem.fourth}</th>
                                                 <th class="text-danger">R$${(parseFloat(hospedagem.price)).toFixed(2)}</th>
                                                 <td>
-                                                    <button type="button" class="btn btn-primary btn-sm">
+                                                    <button onclick="alterarHospedagem('${hospedagem._id}','${dado._id}');" type="button" class="btn btn-primary btn-sm">
                                                         <span class="fas fa-edit"></span> Editar
                                                     </button>
                                                 </td>
                                                 <td>
-                                                    <button type="button" class="btn btn-outline-danger btn-sm">
+                                                    <button onclick="apagarReferenciaHospedagem('${hospedagem._id}','${dado._id}');" type="button" class="btn btn-outline-danger btn-sm">
                                                         <span class="fas fa-trash"></span> Excluir
                                                     </button>
                                                 </td>
@@ -269,36 +269,7 @@ function modalExibirDadosHospede(id) {
                                         </table>
                                     </div>
                                     <div id="areaDeAdicionarHospedagem">
-                                        <form>
-                                            <div class="form-row">
-                                                <div class="form-group col-md-6">
-                                                    <label for="checkinHospede" class="text-primary"><span class="fas fa-calendar-alt"></span> CheckIn:</label>
-                                                    <input type="date" class="form-control" id="checkinHospede">
-                                                </div>
-                                                <div class="form-group col-md-6">
-                                                    <label for="checkoutHospede" class="text-primary"><span class="fas fa-calendar-alt"></span> CheckOut:</label>
-                                                    <input type="date" class="form-control" id="checkoutHospede">
-                                                </div>
-                                            </div>
-                                            <div class="form-row">
-                                                <div class="form-group col-md-6">
-                                                    <label for="numeroQuartoHospede" class="text-primary"><span class="fas fa-hotel"></span> Quarto:</label>
-                                                    <input type="number" class="form-control" id="numeroQuartoHospede" >
-                                                </div>
-                                                <div class="form-group col-md-6">
-                                                    <label for="valorHospedagem" class="text-primary"><span class="fas fa-dollar-sign"></span> Valor:</label>
-                                                    <input type="number" class="form-control" id="valorHospedagem">
-                                                </div>
-                                            </div>
-                                        </form>
-                                        <div class="mx-auto">
-                                            <button type="button" onclick="adicionarHospedagem('${dado._id}');" class="btn btn-primary" style="margin-top:10px;">
-                                                Cadastrar
-                                            </button>
-                                            <button type="button" onclick="$('#areaDeAdicionarHospedagem').fadeOut(); $('#areaDeListagemDeHospedagem').fadeIn();" class="btn btn-outline-secondary" style="margin-top:10px;">
-                                                Cancelar
-                                            </button>
-                                        </div>
+                                        
                                     </div>
                                 </div>
 
@@ -336,19 +307,110 @@ function carregarDadosHospede(id) {
 }
 
 //funcao responsavel por adicionar uma hospedagem
-function adicionarHospedagem(id) {
-    let dado = VETORDEHOSPEDES.find((element) => element._id == id);
+async function adicionarHospedagem(id) {
+    try {
+        let dado = VETORDEHOSPEDES.find((element) => element._id == id);
 
-    dado.hospedagem.push({
-        checkin: document.getElementById('checkinHospede').value,
-        checkout: document.getElementById('checkoutHospede').value,
-        quarto: document.getElementById('numeroQuartoHospede').value,
-        valor: document.getElementById('valorHospedagem').value,
-    })
+        await aguardeCarregamento(true);
+        let result = await cadastrarHospedagem();
+        setTimeout(async function () {
+            result
+            await dado.accommodations.push({ _id: result.data._id });
 
-    $('#modalClasseHospede').modal('hide');
-    document.getElementById(`modal`).innerHTML = ``;
-    modalExibirDadosHospede(dado._id);
+            delete dado._id;
+            delete dado.address._id;
+            delete dado.car._id;
+            delete dado.__v;
+            delete dado.createdAt;
+            delete dado.updatedAt;
+
+            let serializadedAccommodations = []
+
+            for (let accommodations of dado.accommodations) {
+                serializadedAccommodations.push(accommodations._id)
+            }
+
+            dado.accommodations = serializadedAccommodations
+
+            await requisicaoPUT(`guests/${id}`, dado, null)
+            $('#modalExibirDadosHospede').modal('hide');
+            document.getElementById('modal').innerHTML = ``;
+            if (validaDadosCampo(['#nomeDoHospede'])) {
+                gerarListaDeHospedes('nome');
+            } else {
+                gerarListaDeHospedes('todos');
+            }
+        }, 300)
+        await aguardeCarregamento(false);
+
+    } catch (error) {
+        mensagemDeErro('Não foi possível adicionar a hospedagem para este hospede!')
+    }
+}
+
+//funcao responsavel por delegar atualizacao de hospedagem
+async function alterarHospedagem(id, id_cliente) {
+
+    try {
+
+        let dado = VETORDEHOSPEDES.find((element) => element._id == id_cliente);
+        let dado2 = dado.accommodations.find((element) => element._id == id);
+
+        telaDeHospedagem(id, 'atualizar');
+
+        $('#areaDeAdicionarHospedagem').fadeIn();
+        $('#areaDeListagemDeHospedagem').fadeOut();
+
+        document.getElementById(`checkinHospede`).value = dado2.checkin;
+        document.getElementById(`checkoutHospede`).value = dado2.checkout;
+        document.getElementById(`numeroQuartoHospede`).value = dado2.fourth;
+        document.getElementById(`valorHospedagem`).value = dado2.price;
+        await aguardeCarregamento(false);
+
+    } catch (error) {
+        mensagemDeErro(`Erro ao atualizar dados do hospede!`)
+    }
+
+}
+
+//funcao responsavel por excluir referencia de hospedagem do hospede
+async function apagarReferenciaHospedagem(id, id_cliente) {
+    try {
+        let dado = VETORDEHOSPEDES.find((element) => element._id == id_cliente);
+
+        await aguardeCarregamento(true);
+
+        delete dado._id;
+        delete dado.address._id;
+        delete dado.car._id;
+        delete dado.__v;
+        delete dado.createdAt;
+        delete dado.updatedAt;
+
+        let serializadedAccommodations = []
+
+        for (let accommodations of dado.accommodations) {
+            if (accommodations._id != id) {
+                serializadedAccommodations.push(accommodations._id)
+            }
+        }
+
+        dado.accommodations = serializadedAccommodations
+
+        await requisicaoPUT(`guests/${id_cliente}`, dado, null)
+        await excluirHospedagem(id);
+        $('#modalExibirDadosHospede').modal('hide');
+        document.getElementById('modal').innerHTML = ``;
+        if (validaDadosCampo(['#nomeDoHospede'])) {
+            gerarListaDeHospedes('nome');
+        } else {
+            gerarListaDeHospedes('todos');
+        }
+        await aguardeCarregamento(false);
+
+    } catch (error) {
+        mensagemDeErro('Não foi excluir a hospedagem para este hospede!')
+    }
 }
 
 //funcao responsavel por cadastrar o hospede
@@ -387,6 +449,7 @@ async function cadastrarHospede() {
     } catch (error) {
         mensagemDeErro(`Erro ao salvar dados do hospede!`);
     }
+
 }
 
 //funcao responsavel por atualizar o hospede
@@ -409,6 +472,13 @@ async function atualizarHospede(id) {
         dado.escort = document.getElementById('acompanhanteHospede').value;
         dado.accommodations
 
+
+        let serializadedAccommodations = []
+        for (let accommodations of dado.accommodations) {
+            serializadedAccommodations.push(accommodations._id)
+        }
+        dado.accommodations = serializadedAccommodations
+
         delete dado._id;
         delete dado.address._id;
         delete dado.car._id;
@@ -419,8 +489,13 @@ async function atualizarHospede(id) {
         await aguardeCarregamento(true);
         let result = await requisicaoPUT(`guests/${id}`, dado, null)
         mensagemDeAviso(`Dados do Hospede atualizado com sucesso!`);
+        $('#modalClasseHospede').modal('hide');
         document.getElementById('modal').innerHTML = ``;
-        modalExibirDadosHospede(result._id);
+        if (validaDadosCampo(['#nomeDoHospede'])) {
+            gerarListaDeHospedes('nome');
+        } else {
+            gerarListaDeHospedes('todos');
+        }
         await aguardeCarregamento(false);
     } catch (error) {
         mensagemDeErro(`Erro ao atualizar dados do hospede!`)

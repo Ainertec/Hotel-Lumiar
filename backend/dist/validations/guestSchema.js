@@ -5,9 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const celebrate_1 = require("celebrate");
 const validObjectId_1 = __importDefault(require("./validObjectId"));
-const accommodation = celebrate_1.Joi.object().keys({
-    reference: celebrate_1.Joi.custom(validObjectId_1.default, 'valid id').required(),
-});
+const accommodation = celebrate_1.Joi.custom(validObjectId_1.default, 'valid id');
 const address = {
     district: celebrate_1.Joi.string().required(),
     city: celebrate_1.Joi.string().required(),

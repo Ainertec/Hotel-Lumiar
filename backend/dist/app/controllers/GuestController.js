@@ -10,14 +10,14 @@ class GuestController {
         this.update = this.update.bind(this);
     }
     async index(request, response) {
-        const guests = await Guest_1.default.find({}).populate('accommodations.reference');
+        const guests = await Guest_1.default.find({}).populate('accommodations');
         return response.json(guests);
     }
     async show(request, response) {
         const { name } = request.params;
         const guests = await Guest_1.default.find({
             name: { $regex: new RegExp(name), $options: 'i' },
-        }).populate('accommodations.reference');
+        }).populate('accommodations');
         return response.json(guests);
     }
     async store(request, response) {
@@ -34,7 +34,7 @@ class GuestController {
             escort,
             accommodations,
         });
-        await guest.populate('accommodations.reference').execPopulate();
+        await guest.populate('accommodations').execPopulate();
         return response.json(guest);
     }
     async update(request, response) {
@@ -55,12 +55,12 @@ class GuestController {
         if (!guest)
             return response.status(400).json('guest not found');
         await guest.save();
-        await guest.populate('accommodations.reference').execPopulate();
+        await guest.populate('accommodations').execPopulate();
         return response.json(guest);
     }
     async delete(request, response) {
         const { id } = request.params;
-        await Guest_1.default.deleteOne({ _id: id });
+        await Guest_1.default.findOneAndDelete({ _id: id });
         return response.status(200).send();
     }
 }

@@ -85,6 +85,37 @@ function imprimirImpressora(idReferencia) {
     }, 1000);
 }
 
+//funcao responsavel por validar os dados preenchidos nos campos
+function validaDadosCampo(campo) {
+    var validacao = true;
+    for (let item of campo) {
+        if ($(item).val() == '' || $(item).val() == null) {
+            validacao = false;
+        }
+    }
+    return validacao;
+}
+
+//funcao responsavel por validar valores invalidos nos campos(valores negativos)
+function validaValoresCampo(campo) {
+    var validacao = true;
+    for (let item of campo) {
+        if (parseFloat($(item).val()) < 0.0 || parseFloat($(item).val()) == 0.0) {
+            validacao = false;
+        }
+    }
+    return validacao;
+}
+
+//funcao responsavel por manipular o tamanho da string de exibição(caso seja muito grande)
+function corrigirTamanhoString(tamMax, texto) {
+    if (texto.toString().length > tamMax) {
+        texto = texto.substr(0, tamMax)
+        texto += '...'
+    }
+    return texto
+}
+
 //funcao reponsavel por alertar o usuario sobre executar determinada acao
 function confirmarAcao(mensagem, funcao, value) {
     let codigoHTML = ``;

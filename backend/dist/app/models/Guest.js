@@ -1,29 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
-/*export interface IAddress extends Document {
-  district: string;
-  street: string;
-  reference: string;
-  number: number;
-};
-
-export interface IUser {
-  name: string;
-  username: string;
-  password: string;
-  question: string;
-  response: string;
-  address?: IAddress[];
-  phone: string[];
-};*/
-const AccommodationSchema = new mongoose_1.Schema({
-    reference: {
-        type: mongoose_1.Schema.Types.ObjectId,
-        ref: 'Accommodation',
-        required: true,
-    }
-});
+const Accommodation_1 = __importDefault(require("./Accommodation"));
 const AddressSchema = new mongoose_1.Schema({
     district: {
         type: String,
@@ -83,8 +64,22 @@ const GuestSchema = new mongoose_1.Schema({
     },
     car: CarSchema,
     address: AddressSchema,
-    accommodations: [AccommodationSchema],
+    accommodations: [
+        {
+            type: mongoose_1.Schema.Types.ObjectId,
+            ref: 'Accommodation',
+            required: true
+        }
+    ],
 }, {
     timestamps: true,
+});
+GuestSchema.post('findOneAndDelete', async (document) => {
+    if (document) {
+        const accommodationID = document.accommodations;
+        for (const accommodation of accommodationID) {
+            await Accommodation_1.default.deleteOne({ _id: accommodation });
+        }
+    }
 });
 exports.default = mongoose_1.model('Guest', GuestSchema);

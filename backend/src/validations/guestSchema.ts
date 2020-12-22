@@ -1,7 +1,7 @@
 import { Joi } from 'celebrate';
 import validObjectId from './validObjectId';
 
-const accommodation = Joi.custom(validObjectId, 'valid id').required();
+const accommodation = Joi.custom(validObjectId, 'valid id');
 
 const address = {
   district: Joi.string().required(),
