@@ -41,21 +41,21 @@ function telaHospede(id) {
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
                                             <label for="cepHospede" class="text-primary"><span class="fas fa-map-marker-alt"></span> CEP:</label>
-                                            <input type="text" class="form-control" id="cepHospede" placeholder="CEP do hospede">
+                                            <input type="text" class="form-control" id="cepHospede" placeholder="CEP do hospede" onkeyup="if((this.value).length > 7){this.value = mascara('cep', this.value);}">
                                         </div>
                                         <div class="form-group col-md-6">
                                             <label for="celularHospede" class="text-primary"><span class="fas fa-phone-volume"></span> Celular:</label>
-                                            <input type="text" class="form-control" id="celularHospede" placeholder="Celular do hospede">
+                                            <input type="text" class="form-control" id="celularHospede" placeholder="Celular do hospede" onkeyup="if((this.value).length > 9){this.value = mascara('phone', this.value);}">
                                         </div>
                                     </div>
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
                                             <label for="cpfHospede" class="text-primary"><span class="fas fa-id-card"></span> CPF:</label>
-                                            <input type="text" class="form-control" id="cpfHospede" placeholder="CPF do hospede">
+                                            <input type="text" class="form-control" id="cpfHospede" placeholder="CPF do hospede" onkeyup="if((this.value).length > 10){this.value = mascara('cpf', this.value);}">
                                         </div>
                                         <div class="form-group col-md-6">
                                             <label for="obsHospede" class="text-primary"><span class="fas fa-info"></span> Observação:</label>
-                                            <input type="text" class="form-control" id="obsHospede" placeholder="Observação" value="Nenhuma.">
+                                            <input type="text" class="form-control" id="obsHospede" placeholder="Observação">
                                         </div>
                                     </div>
                                     <div class="form-row">
@@ -75,7 +75,7 @@ function telaHospede(id) {
                                         </div>
                                         <div class="form-group col-md-6">
                                             <label for="placaCarroHospede" class="text-primary"><span class="fas fa-car"></span> Placa do carro:</label>
-                                            <input type="text" class="form-control" id="placaCarroHospede" placeholder="Placa do carro">
+                                            <input type="text" class="form-control" id="placaCarroHospede" placeholder="Placa do carro" onkeyup="if((this.value).length > 6){this.value = mascara('plate', this.value);}">
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -88,9 +88,46 @@ function telaHospede(id) {
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancelar</button>`
     if (id) {
-        codigoHTML += `<button type="button" onclick="atualizarHospede('${id}');" class="btn btn-primary">Atualizar</button>`
+        codigoHTML += `<button type="button" onclick="if(validaDadosCampo(
+            [
+                '#nomeHospede',
+                '#enderecoHospede',
+                '#bairroHospede',
+                '#cidadeHospede',
+                '#celularHospede',
+                '#cpfHospede'
+            ]
+        )){ confirmarAcao('Atualizar os dados deste hospede!','atualizarHospede(this.value)','${id}'); $('#modalClasseHospede').modal('hide'); }else{ mensagemDeErro('Preencha os campos necessarios!'); mostrarCamposIncorrreto(
+            [
+                'nomeHospede',
+                'enderecoHospede',
+                'bairroHospede',
+                'cidadeHospede',
+                'celularHospede',
+                'cpfHospede'
+            ]
+        ); }" class="btn btn-primary">Atualizar</button>`
+
     } else {
-        codigoHTML += `<button type="button" onclick="cadastrarHospede();" class="btn btn-primary">Cadastrar</button>`
+        codigoHTML += `<button type="button" onclick="if(validaDadosCampo(
+            [
+                '#nomeHospede',
+                '#enderecoHospede',
+                '#bairroHospede',
+                '#cidadeHospede',
+                '#celularHospede',
+                '#cpfHospede'
+            ]
+        )){ cadastrarHospede(); }else{ mensagemDeErro('Preencha os campos necessarios!'); mostrarCamposIncorrreto(
+            [
+                'nomeHospede',
+                'enderecoHospede',
+                'bairroHospede',
+                'cidadeHospede',
+                'celularHospede',
+                'cpfHospede'
+            ]
+        ) }" class="btn btn-primary">Cadastrar</button>`
     }
     codigoHTML += `</div>
                         </div>
@@ -119,16 +156,20 @@ async function gerarListaDeHospedes(tipo) {
         VETORDEHOSPEDES.push(hospede)
         codigoHTML += `<a href="#" onclick="modalExibirDadosHospede('${hospede._id}');" class="list-group-item list-group-item-action list-group-item-warning shadow-lg p-3 mb-2">
                         <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">Nome: ${hospede.name}</h5>
-                            <small>Celular: ${hospede.phone}</small>
+                            <h5 class="mb-1" title="${hospede.name}">Nome: ${corrigirTamanhoString(30, hospede.name)}</h5>
+                            <small title="${hospede.phone}">Celular: ${corrigirTamanhoString(15, hospede.phone)}</small>
                         </div>
-                        <p class="mb-1">CPF: ${hospede.identification}</small></p>
+                        <p class="mb-1" title="${hospede.identification}">CPF: ${corrigirTamanhoString(15, hospede.identification)}</small></p>
                     </a>`
     }
     codigoHTML += `</div>`
 
     document.getElementById(`listaDeHospedes`).innerHTML = ``;
-    document.getElementById(`listaDeHospedes`).innerHTML = codigoHTML;
+    if (json.data[0] == null) {
+        document.getElementById(`listaDeHospedes`).innerHTML = `<h5 class="text-center" style="margin-top: 20vh;"><span class="fas fa-exclamation-triangle" style="margin-right:5px;"></span>Nenhum hospede encontrado!</h5>`;
+    } else {
+        document.getElementById(`listaDeHospedes`).innerHTML = codigoHTML;
+    }
 }
 
 //funcao responsavel por gerar o modal de exibir os dados do hospede
@@ -152,63 +193,63 @@ function modalExibirDadosHospede(id) {
                                     <div class="row">
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-id-card"></span> Nome:</label>
-                                            <h6>${dado.name}</h6>
+                                            <h6 title="${dado.name}">${corrigirTamanhoString(30, dado.name)}</h6>
                                         </div>
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-map-marker-alt"></span> Endereço:</label>
-                                            <h6>${dado.address.street}</h6>
+                                            <h6 title="${dado.address.street}">${corrigirTamanhoString(30, dado.address.street)}</h6>
                                         </div>
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-map-marker-alt"></span> Bairro:</label>
-                                            <h6>${dado.address.district}</h6>
+                                            <h6 title="${dado.address.district}">${corrigirTamanhoString(15, dado.address.district)}</h6>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-map-marker-alt"></span> Cidade:</label>
-                                            <h6>${dado.address.city}</h6>
+                                            <h6 title="${dado.address.city}">${corrigirTamanhoString(15, dado.address.city)}</h6>
                                         </div>
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-map-marker-alt"></span> CEP:</label>
-                                            <h6>${dado.address.cep}</h6>
+                                            <h6 title="${dado.address.cep}">${corrigirTamanhoString(10, dado.address.cep)}</h6>
                                         </div>
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-phone-volume"></span> Celular:</label>
-                                            <h6>${dado.phone}</h6>
+                                            <h6 title="${dado.phone}">${corrigirTamanhoString(15, dado.phone)}</h6>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-id-card"></span> CPF:</label>
-                                            <h6>${dado.identification}</h6>
+                                            <h6 title="${dado.identification}">${corrigirTamanhoString(15, dado.identification)}</h6>
                                         </div>
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-info"></span> Observação:</label>
-                                            <h6>${dado.note}</h6>
+                                            <h6 title="${dado.note}">${corrigirTamanhoString(45, dado.note)}</h6>
                                         </div>
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-at"></span> Email:</label>
-                                            <h6>${dado.email}</h6>
+                                            <h6 title="${dado.email}">${corrigirTamanhoString(25, dado.email)}</h6>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-calendar-alt"></span> Data de nascimento:</label>
-                                            <h6>${dado.dateBirth}</h6>
+                                            <h6 title="${dado.dateBirth}">${corrigirTamanhoString(11, dado.dateBirth)}</h6>
                                         </div>
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-car"></span> Carro:</label>
-                                            <h6>${dado.car.model}</h6>
+                                            <h6 title="${dado.car.model}">${corrigirTamanhoString(15, dado.car.model)}</h6>
                                         </div>
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-car"></span> Placa do carro:</label>
-                                            <h6>${dado.car.plate}</h6>
+                                            <h6 title="${dado.car.plate}">${corrigirTamanhoString(9, dado.car.plate)}</h6>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col">
                                             <label class="text-primary"><span class="fas fa-user-friends"></span> Acompanhante:</label>
-                                            <h6>${dado.escort}</h6>
+                                            <h6 title="${dado.escort}">${corrigirTamanhoString(30, dado.escort)}</h6>
                                         </div>
                                     </div>
                                     <div class="mx-auto">
@@ -233,9 +274,12 @@ function modalExibirDadosHospede(id) {
                                             <button type="button" onclick="$('#areaDeListagemDeHospedagem').fadeOut(); $('#areaDeAdicionarHospedagem').fadeIn(); telaDeHospedagem('${dado._id}', 'cadastrar');" class="btn btn-primary btn-block" style="margin-top:20px;">
                                                 <span class="fas fa-plus"></span> Adicionar nova hospedagem <span class="fas fa-bed"></span>
                                             </button>
-                                        </div>
+                                        </div>`
 
-                                        <table class="table table-sm" style="margin-top: 30px;">
+    if (dado.accommodations[0] == null) {
+        codigoHTML += `<h5 class="text-center" style="margin-top: 30px; margin-bottom: 30px;"><span class="fas fa-exclamation-triangle" style="margin-right:5px;"></span>Nenhuma hospedagem encontrada!</h5>`
+    } else {
+        codigoHTML += `<table class="table table-sm" style="margin-top: 30px;">
                                             <thead>
                                                 <tr class="bg-dark text-light">
                                                     <th scope="col">CheckIn</th>
@@ -247,8 +291,8 @@ function modalExibirDadosHospede(id) {
                                                 </tr>
                                             </thead>
                                             <tbody>`
-    for (let hospedagem of dado.accommodations) {
-        codigoHTML += `<tr>
+        for (let hospedagem of dado.accommodations) {
+            codigoHTML += `<tr>
                                                 <th><span class="badge badge-success">${hospedagem.checkin}</span></th>
                                                 <th><span class="badge badge-warning">${hospedagem.checkout}</span></th>
                                                 <th>Nº ${hospedagem.fourth}</th>
@@ -259,15 +303,17 @@ function modalExibirDadosHospede(id) {
                                                     </button>
                                                 </td>
                                                 <td>
-                                                    <button onclick="apagarReferenciaHospedagem('${hospedagem._id}','${dado._id}');" type="button" class="btn btn-outline-danger btn-sm">
+                                                    <button onclick="confirmarExclusaoHospedagem('${hospedagem._id}','${dado._id}');" type="button" class="btn btn-outline-danger btn-sm">
                                                         <span class="fas fa-trash"></span> Excluir
                                                     </button>
                                                 </td>
                                             </tr>`
+        }
+        codigoHTML += `</tbody>
+                                        </table>`
     }
-    codigoHTML += `</tbody>
-                                        </table>
-                                    </div>
+
+    codigoHTML += `</div>
                                     <div id="areaDeAdicionarHospedagem">
                                         
                                     </div>
@@ -364,7 +410,7 @@ async function alterarHospedagem(id, id_cliente) {
         document.getElementById(`checkinHospede`).value = dado2.checkin;
         document.getElementById(`checkoutHospede`).value = dado2.checkout;
         document.getElementById(`numeroQuartoHospede`).value = dado2.fourth;
-        document.getElementById(`valorHospedagem`).value = dado2.price;
+        document.getElementById(`valorHospedagem`).value = (parseFloat(dado2.price)).toFixed(2);
         await aguardeCarregamento(false);
 
     } catch (error) {
@@ -375,6 +421,7 @@ async function alterarHospedagem(id, id_cliente) {
 
 //funcao responsavel por excluir referencia de hospedagem do hospede
 async function apagarReferenciaHospedagem(id, id_cliente) {
+
     try {
         let dado = VETORDEHOSPEDES.find((element) => element._id == id_cliente);
 
@@ -422,18 +469,18 @@ async function cadastrarHospede() {
                 street: document.getElementById('enderecoHospede').value,
                 district: document.getElementById('bairroHospede').value,
                 city: document.getElementById('cidadeHospede').value,
-                cep: document.getElementById('cepHospede').value,
+                cep: validaDadosCampo(['#cepHospede']) ? document.getElementById('cepHospede').value : "00000-000",
             },
             phone: document.getElementById('celularHospede').value,
             identification: document.getElementById('cpfHospede').value,
-            note: document.getElementById('obsHospede').value,
-            email: document.getElementById('emailHospede').value,
-            dateBirth: document.getElementById('nascimentoHospede').value,
+            note: validaDadosCampo(['#obsHospede']) ? document.getElementById('obsHospede').value : "Nenhuma.",
+            email: validaDadosCampo(['#emailHospede']) ? document.getElementById('emailHospede').value : "Nenhum.",
+            dateBirth: validaDadosCampo(['#nascimentoHospede']) ? document.getElementById('nascimentoHospede').value : "0000-00-00",
             car: {
-                model: document.getElementById('carroHospede').value,
-                plate: document.getElementById('placaCarroHospede').value,
+                model: validaDadosCampo(['#carroHospede']) ? document.getElementById('carroHospede').value : "Nenhum.",
+                plate: validaDadosCampo(['#placaCarroHospede']) ? document.getElementById('placaCarroHospede').value : "Nenhum.",
             },
-            escort: document.getElementById('acompanhanteHospede').value,
+            escort: validaDadosCampo(['#acompanhanteHospede']) ? document.getElementById('acompanhanteHospede').value : "Nenhum.",
             accommodations: [],
         }
 
@@ -461,15 +508,15 @@ async function atualizarHospede(id) {
         dado.address.street = document.getElementById('enderecoHospede').value;
         dado.address.district = document.getElementById('bairroHospede').value;
         dado.address.city = document.getElementById('cidadeHospede').value;
-        dado.address.cep = document.getElementById('cepHospede').value;
+        dado.address.cep = validaDadosCampo(['#cepHospede']) ? document.getElementById('cepHospede').value : "00000-000";
         dado.phone = document.getElementById('celularHospede').value;
         dado.identification = document.getElementById('cpfHospede').value;
-        dado.note = document.getElementById('obsHospede').value;
-        dado.email = document.getElementById('emailHospede').value;
-        dado.dateBirth = document.getElementById('nascimentoHospede').value;
-        dado.car.model = document.getElementById('carroHospede').value;
-        dado.car.plate = document.getElementById('placaCarroHospede').value;
-        dado.escort = document.getElementById('acompanhanteHospede').value;
+        dado.note = validaDadosCampo(['#obsHospede']) ? document.getElementById('obsHospede').value : "Nenhuma.";
+        dado.email = validaDadosCampo(['#emailHospede']) ? document.getElementById('emailHospede').value : "Nenhum.";
+        dado.dateBirth = validaDadosCampo(['#nascimentoHospede']) ? document.getElementById('nascimentoHospede').value : "0000-00-00";
+        dado.car.model = validaDadosCampo(['#carroHospede']) ? document.getElementById('carroHospede').value : "Nenhum.";
+        dado.car.plate = validaDadosCampo(['#placaCarroHospede']) ? document.getElementById('placaCarroHospede').value : "Nenhum.";
+        dado.escort = validaDadosCampo(['#acompanhanteHospede']) ? document.getElementById('acompanhanteHospede').value : "Nenhum.";
         dado.accommodations
 
 
@@ -489,7 +536,6 @@ async function atualizarHospede(id) {
         await aguardeCarregamento(true);
         let result = await requisicaoPUT(`guests/${id}`, dado, null)
         mensagemDeAviso(`Dados do Hospede atualizado com sucesso!`);
-        $('#modalClasseHospede').modal('hide');
         document.getElementById('modal').innerHTML = ``;
         if (validaDadosCampo(['#nomeDoHospede'])) {
             gerarListaDeHospedes('nome');
@@ -505,13 +551,16 @@ async function atualizarHospede(id) {
 //funcao responsavel por apagar o hospede
 async function excluirHospede(id) {
     try {
-        let posicao = VETORDEHOSPEDES.findIndex((element) => element._id == id);
-
         await aguardeCarregamento(true);
         await requisicaoDELETE(`guests/${id}`, '', null)
         mensagemDeAviso(`Hospede excluído com sucesso!`);
         document.getElementById('modal').innerHTML = ``;
         await aguardeCarregamento(false);
+        if (validaDadosCampo(['#nomeDoHospede'])) {
+            gerarListaDeHospedes('nome');
+        } else {
+            gerarListaDeHospedes('todos');
+        }
     } catch (error) {
         mensagemDeErro(`Erro ao excluir hospede!`)
     }

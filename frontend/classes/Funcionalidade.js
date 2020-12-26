@@ -60,10 +60,20 @@ function imprimirImpressora(idReferencia) {
                     .text-center{
                         text-align: center;
                     }
+                    label{
+                        font-size:14px;
+                    }
+                    table{
+                        font-size:14px;
+                    }
+                    .btn{
+                        display:none;
+                    }
                 </style>
             </head>
 
         <body>
+            <img src="img/logo.png" class="rounded mx-auto d-block" style="width: 100px; margin: 20px;" alt="...">
             <h3 class="text-center">Impressão dados hospede<h3>`
     conteudo += document.getElementById(idReferencia).innerHTML
 
@@ -148,6 +158,18 @@ function confirmarAcao(mensagem, funcao, value) {
     $('#modalAviso').modal('show');
 }
 
+//funcao resopnsavel por exibir cor defente no campo incorreto
+function mostrarCamposIncorrreto(campo) {
+    for (let item of campo) {
+        document.getElementById(item).classList.add('border');
+        document.getElementById(item).classList.add('border-danger');
+        setTimeout(function () {
+            document.getElementById(item).classList.remove('border');
+            document.getElementById(item).classList.remove('border-danger');
+        }, 2000)
+    }
+}
+
 //funcao responsavel por gerar a tela de aguarde o carregamento
 let timerCarregador;
 function aguardeCarregamento(tipo) {
@@ -184,5 +206,83 @@ function aguardeCarregamento(tipo) {
     } else {
         clearInterval(timerCarregador);
         setTimeout(function () { document.getElementById('carregamento').innerHTML = ''; }, 300)
+    }
+}
+
+//funcao responsavel por criar mascaras
+function mascara(tipo, dado) {
+    switch (tipo) {
+        case 'cep':
+            let CEP = []
+            dado = dado.replace('-', '');
+            CEP.push(dado.substring(0, 5));
+            CEP.push(dado.substring(5, dado.length));
+
+            return `${CEP[0]}-${CEP[1]}`
+        case 'phone':
+            let phone = []
+            dado = dado.replace('(', '');
+            dado = dado.replace(')', '');
+            dado = dado.replace('-', '');
+            phone.push(dado.substring(0, 2));
+            phone.push(dado.substring(2, dado.length - 4));
+            phone.push(dado.substring(dado.length - 4, dado.length));
+
+            return `(${phone[0]})${phone[1]}-${phone[2]}`
+        case 'cpf':
+            let CPF = []
+            dado = dado.replace('.', '');
+            dado = dado.replace('.', '');
+            dado = dado.replace('-', '');
+            CPF.push(dado.substring(0, 3));
+            CPF.push(dado.substring(3, 6));
+            CPF.push(dado.substring(6, 9));
+            CPF.push(dado.substring(9, dado.length));
+
+            return `${CPF[0]}.${CPF[1]}.${CPF[2]}-${CPF[3]}`
+        case 'plate':
+            let plate = []
+            dado = dado.replace('-', '');
+            plate.push(dado.substring(0, 3));
+            plate.push(dado.substring(3, dado.length));
+
+            return `${plate[0]}-${plate[1]}`
+        case 'money':
+            let money = [];
+            dado = dado.replace('.', '');
+            dado = dado.replace(',', '');
+
+            if (dado > 99999) {
+                money.push(dado.substring(0, dado.length - 5));
+                money.push(dado.substring(dado.length - 5, dado.length - 2));
+                money.push(dado.substring(dado.length - 2, dado.length));
+
+                return `${money[0]}${money[1]}.${money[2]}`
+            } else if (dado > 99 && dado < 100000) {
+                money.push(dado.substring(0, dado.length - 2));
+                money.push(dado.substring(dado.length - 2, dado.length));
+
+                return `${money[0]}.${money[1]}`
+            } else if (dado > 0) {
+
+                return `${dado}`
+            } else {
+                return ''
+            }
+        default:
+            break;
+    }
+
+}
+
+//funcao responsavel por permitir apenas teclas de numero
+function permiteApenasNumeros(evt) {
+    let theEvent = evt || window.event;
+    let key = theEvent.keyCode || theEvent.which;
+    key = String.fromCharCode(key);
+    let regex = /^[0-9.]+$/;
+    if (!regex.test(key)) {
+        theEvent.returnValue = false;
+        if (theEvent.preventDefault) theEvent.preventDefault();
     }
 }
