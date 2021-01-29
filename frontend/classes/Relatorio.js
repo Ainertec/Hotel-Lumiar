@@ -28,7 +28,7 @@ function telaRelatorio(){
                         </div>
                         <div class="row justify-content-md-center">
                             <div class="col-8">
-                                <button onclick="gerarTabelaDeHospedagem();" type="button" class="btn btn-outline-info btn-block btn-sm" style="margin-top:15px">
+                                <button onclick="if(validaDadosCampo(['#datainicio','#datafim'])){gerarTabelaDeHospedagem();}else{mensagemDeErro('Preencha os campos de data!'); mostrarCamposIncorrreto(['datainicio','datafim']);}" type="button" class="btn btn-outline-info btn-block btn-sm" style="margin-top:15px">
                                     <span class="fas fa-search"></span> Buscar
                                 </button>
                             </div>
@@ -49,12 +49,12 @@ function telaRelatorio(){
 
 //funcao responsavel por buscar os dados e gerar a tabela de hospedagens
 async function gerarTabelaDeHospedagem(){
-    let codigoHTML=``, json = await requisicaoGET(`guests`, null);
+    let codigoHTML=``, json = await requisicaoGET(`reports?initial=${document.getElementById('datainicio').value}&final=${document.getElementById('datafim').value}`, null);
 
     codigoHTML+=`<h5 class="text-center" style="margin-top:30px;">Tabela de hospedagens</h5>`;
 
     for (const hospede of json.data) {
-        let ultimaHospedagem = retornaObjetoComDataMaisRecente(hospede.accommodations)
+        let ultimasHospedagens = retornaObjetoComDataMaisRecente(hospede.accommodations, document.getElementById('datainicio').value, document.getElementById('datafim').value)
     
         codigoHTML+=`<table class="table table-bordered">
                 <tr class="table-secondary">
@@ -69,19 +69,21 @@ async function gerarTabelaDeHospedagem(){
                     <td>
                         CPF: <strong>${hospede.identification}</strong>
                     </td>
-                </tr>
-                <tr class="table-info">
-                    <td>
-                        Checkin: <span class="badge badge-success">${ultimaHospedagem.checkin}</span>
-                    </td>
-                    <td>
-                        Checkout: <span class="badge badge-warning">${ultimaHospedagem.checkout}</span>
-                    </td>
-                    <td>
-                        Valor: <strong style="color:red;">R$${ultimaHospedagem.price}</strong>
-                    </td>
-                </tr>
-                <tr>
+                </tr>`
+                for(const ultimaHospedagem of ultimasHospedagens){
+                    codigoHTML+=`<tr class="table-info">
+                        <td>
+                            Checkin: <span class="badge badge-success">${ultimaHospedagem.checkin}</span>
+                        </td>
+                        <td>
+                            Checkout: <span class="badge badge-warning">${ultimaHospedagem.checkout}</span>
+                        </td>
+                        <td>
+                            Valor: <strong style="color:red;">R$${ultimaHospedagem.price}</strong>
+                        </td>
+                    </tr>`
+                }
+                codigoHTML+=`<tr>
                     <td colspan="3">
                         <button onclick="document.getElementById('checkinAntigos${hospede._id}').hidden? document.getElementById('checkinAntigos${hospede._id}').hidden = false : document.getElementById('checkinAntigos${hospede._id}').hidden = true" type="button" class="btn btn-outline-primary">
                             <span class="fas fa-eye"></span> Todos os checkins
@@ -111,16 +113,14 @@ async function gerarTabelaDeHospedagem(){
 }
 
 //funcao responsavel por retornar objeto com data mais recente
-function retornaObjetoComDataMaisRecente(objetos){
-    let objetoFinal = null, dataMaior = {dia:0,mes:0,ano:0};
+function retornaObjetoComDataMaisRecente(objetos, dataInicio, dataFinal){
+    console.log(dataInicio)
+    let objetoFinal = [], partesDataInicio = dataInicio.split("-"), partesDataFinal = dataFinal.split("-");
     
     for (const objeto of objetos) {
         let partesData = (objeto.checkin).split("-");
-        if(dataMaior.ano <= parseInt(partesData[0]) && dataMaior.mes <= parseInt(partesData[1]) && dataMaior.dia < parseInt(partesData[2])){
-            objetoFinal = objeto;
-            dataMaior.dia = parseInt(partesData[2]);
-            dataMaior.mes = parseInt(partesData[1]);
-            dataMaior.ano = parseInt(partesData[0]);
+        if(partesData[0] >= partesDataInicio[0] && partesData[0] <= partesDataFinal[0] && partesData[1] >= partesDataInicio[1] && partesData[1] <= partesDataFinal[1] && partesData[2] >= partesDataInicio[2] && partesData[2] <= partesDataFinal[2]){
+            objetoFinal.push(objeto);
         }
     }
 

@@ -6,11 +6,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const guest_routes_1 = require("./guest.routes");
 const accommodations_routes_1 = require("./accommodations.routes");
+const resport_routes_1 = require("./resport.routes");
 // validations
 const guestSchema_1 = __importDefault(require("../validations/guestSchema"));
 const accommodationSchema_1 = __importDefault(require("../validations/accommodationSchema"));
 ;
 const commonSchema_1 = require("../validations/commonSchema");
+const reportSchema_1 = require("../validations/reportSchema");
 const routes = express_1.Router();
 // guests
 const guestRouters = new guest_routes_1.GuestRoutes(routes);
@@ -18,4 +20,9 @@ guestRouters.getRoutes({ guest: guestSchema_1.default, paramName: commonSchema_1
 // accommodations
 const accommodationRoutes = new accommodations_routes_1.AccommodationRoutes(routes);
 accommodationRoutes.getRoutes({ paramName: commonSchema_1.paramName, paramId: commonSchema_1.paramId, accommodation: accommodationSchema_1.default });
+// Report
+const reportRoutes = new resport_routes_1.ReportRoutes(routes);
+reportRoutes.getRoutes({
+    report: reportSchema_1.report,
+});
 exports.default = routes;

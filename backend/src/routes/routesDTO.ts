@@ -17,3 +17,6 @@ export interface IValidationsAccommodation {
   accommodation: Joi.ObjectSchema;
   paramId: IParamId;
 }
+export interface IValidationReport {
+  report: Joi.ObjectSchema;
+}

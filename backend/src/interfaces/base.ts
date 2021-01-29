@@ -11,7 +11,7 @@ export interface GuestInterface extends Document {
   dateBirth: string;
   car: Car;
   escort: string;
-  accommodations: Accommodation[];
+  accommodations: AccommodationInterface[];
 }
 export interface Address {
   district: string;
@@ -23,9 +23,9 @@ export interface Car {
   model: string;
   plate: string;
 }
-export interface Accommodation {
+/*export interface Accommodation {
   reference: AccommodationInterface;
-}
+}*/
 export interface AccommodationInterface extends Document {
   checkin: string;
   checkout: string;

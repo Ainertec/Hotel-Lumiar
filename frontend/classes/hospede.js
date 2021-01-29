@@ -381,6 +381,7 @@ async function adicionarHospedagem(id) {
             await requisicaoPUT(`guests/${id}`, dado, null)
             $('#modalExibirDadosHospede').modal('hide');
             document.getElementById('modal').innerHTML = ``;
+            document.getElementById('nomeDoHospede').value = dado.name;
             if (validaDadosCampo(['#nomeDoHospede'])) {
                 gerarListaDeHospedes('nome');
             } else {
@@ -537,6 +538,7 @@ async function atualizarHospede(id) {
         let result = await requisicaoPUT(`guests/${id}`, dado, null)
         mensagemDeAviso(`Dados do Hospede atualizado com sucesso!`);
         document.getElementById('modal').innerHTML = ``;
+        document.getElementById('nomeDoHospede').value = dado.name;
         if (validaDadosCampo(['#nomeDoHospede'])) {
             gerarListaDeHospedes('nome');
         } else {
