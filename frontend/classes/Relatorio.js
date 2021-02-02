@@ -49,7 +49,9 @@ function telaRelatorio(){
 
 //funcao responsavel por buscar os dados e gerar a tabela de hospedagens
 async function gerarTabelaDeHospedagem(){
+    await aguardeCarregamento(true);
     let codigoHTML=``, json = await requisicaoGET(`reports?initial=${document.getElementById('datainicio').value}&final=${document.getElementById('datafim').value}`, null);
+    await aguardeCarregamento(false);
 
     codigoHTML+=`<h5 class="text-center" style="margin-top:30px;">Tabela de hospedagens</h5>`;
 
@@ -63,11 +65,56 @@ async function gerarTabelaDeHospedagem(){
                     </th>
                 </tr>
                 <tr class="table-info">
-                    <td colspan="2">
+                    <td>
                         Nome: <strong>${hospede.name}</strong>
                     </td>
                     <td>
                         CPF: <strong>${hospede.identification}</strong>
+                    </td>
+                    <td>
+                        Data de nascimento: <strong>${hospede.dateBirth}</strong>
+                    </td>
+                </tr>
+                <tr class="table-info">
+                    <td colspan="3">
+                        Endereço: <strong>${hospede.address.street}</strong>
+                    </td>
+                </tr>
+                <tr class="table-info">
+                    <td>
+                        Bairro: <strong>${hospede.address.district}</strong>
+                    </td>
+                    <td>
+                        Cidade: <strong>${hospede.address.city}</strong>
+                    </td>
+                    <td>
+                        CEP: <strong>${hospede.address.cep}</strong>
+                    </td>
+                </tr>
+                <tr class="table-info">
+                    <td>
+                        Telefone: <strong>${hospede.phone}</strong>
+                    </td>
+                    <td colspan="2">
+                        Email: <strong>${hospede.email}</strong>
+                    </td>
+                </tr>
+                <tr class="table-info">
+                    <td colspan="3">
+                        Observação: <strong>${hospede.note}</strong>
+                    </td>
+                </tr>
+                <tr class="table-info">
+                    <td>
+                        Carro: <strong>${hospede.car.model}</strong>
+                    </td>
+                    <td colspan="2">
+                        Placa do carro: <strong>${hospede.car.plate}</strong>
+                    </td>
+                </tr>
+                <tr class="table-info">
+                    <td colspan="3">
+                        Observação: <strong>${hospede.escort}</strong>
                     </td>
                 </tr>`
                 for(const ultimaHospedagem of ultimasHospedagens){
