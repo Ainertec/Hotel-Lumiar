@@ -140,7 +140,7 @@ function telaHospede(id) {
 }
 
 //funcao responsavel por gerar a lista de hospedes de acordo com a busca
-async function gerarListaDeHospedes(tipo) {
+async function gerarListaDeHospedes(tipo,idRetorno) {
     let codigoHTML = ``, json = null;
 
     VETORDEHOSPEDES = [];
@@ -150,17 +150,111 @@ async function gerarListaDeHospedes(tipo) {
     } else if (tipo == 'todos') {
         json = await requisicaoGET(`guests`, null);
     }
+    if(idRetorno){
+        let busca = await requisicaoGET(`guests`, null);
+        let data = [];
+        data.push(busca.data.find((item)=> item._id == idRetorno));
+        json = {'data':data}
+    }
 
     codigoHTML += `<div class="list-group">`
     for (let hospede of json.data) {
         VETORDEHOSPEDES.push(hospede)
-        codigoHTML += `<a href="#" onclick="modalExibirDadosHospede('${hospede._id}');" class="list-group-item list-group-item-action list-group-item-warning shadow-lg p-3 mb-2">
+        codigoHTML += `<a href="#" onclick="modalExibirDadosHospede('${hospede._id}');" class="list-group-item list-group-item-action list-group-item-warning shadow-lg">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1" title="${hospede.name}">Nome: ${corrigirTamanhoString(30, hospede.name)}</h5>
                             <small title="${hospede.phone}">Celular: ${corrigirTamanhoString(15, hospede.phone)}</small>
                         </div>
-                        <p class="mb-1" title="${hospede.identification}">CPF: ${corrigirTamanhoString(15, hospede.identification)}</small></p>
-                    </a>`
+                        <p class="mb-1" title="${hospede.identification}">CPF: ${corrigirTamanhoString(15, hospede.identification)}</p>
+                    </a>
+                    <button class="btn btn-sm btn-outline-warning mb-2" type="button" onclick="document.getElementById('collapse${hospede._id}').hidden? document.getElementById('collapse${hospede._id}').hidden = false : document.getElementById('collapse${hospede._id}').hidden = true">
+                        <span class="fas fa-eye"></span> Visualização simplificada
+                    </button>
+                    <div id="collapse${hospede._id}" hidden style="margin-bottom:3vh;">
+                        <div class="card card-body">
+                            <table class="table table-bordered">
+                                <tr class="table-secondary">
+                                    <th colspan="3" class="text-center">
+                                        Hospede
+                                    </th>
+                                </tr>
+                                <tr class="table-info">
+                                    <td>
+                                        Nome: <strong>${hospede.name}</strong>
+                                    </td>
+                                    <td>
+                                        CPF: <strong>${hospede.identification}</strong>
+                                    </td>
+                                    <td>
+                                        Data de nascimento: <strong>${hospede.dateBirth}</strong>
+                                    </td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td colspan="3">
+                                        Endereço: <strong>${hospede.address.street}</strong>
+                                    </td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td>
+                                        Bairro: <strong>${hospede.address.district}</strong>
+                                    </td>
+                                    <td>
+                                        Cidade: <strong>${hospede.address.city}</strong>
+                                    </td>
+                                    <td>
+                                        CEP: <strong>${hospede.address.cep}</strong>
+                                    </td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td>
+                                        Telefone: <strong>${hospede.phone}</strong>
+                                    </td>
+                                    <td colspan="2">
+                                        Email: <strong>${hospede.email}</strong>
+                                    </td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td colspan="3">
+                                        Observação: <strong>${hospede.note}</strong>
+                                    </td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td>
+                                        Carro: <strong>${hospede.car.model}</strong>
+                                    </td>
+                                    <td colspan="2">
+                                        Placa do carro: <strong>${hospede.car.plate}</strong>
+                                    </td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td colspan="3">
+                                        Observação: <strong>${hospede.escort}</strong>
+                                    </td>
+                                </tr>
+                                <td colspan="3">
+                                    <button onclick="document.getElementById('checkinsTelaPrincipal${hospede._id}').hidden? document.getElementById('checkinsTelaPrincipal${hospede._id}').hidden = false : document.getElementById('checkinsTelaPrincipal${hospede._id}').hidden = true" type="button" class="btn btn-outline-primary">
+                                        <span class="fas fa-eye"></span> Todos os checkins
+                                    </button>
+                                </td>
+                                </tr>
+                                <tfoot id="checkinsTelaPrincipal${hospede._id}" hidden>`
+                                    for(const accommodation of hospede.accommodations){
+                                        codigoHTML+=`<tr class="table-secondary">
+                                        <td>
+                                            Checkin: <span class="badge badge-success">${accommodation.checkin}</span>
+                                        </td>
+                                        <td>
+                                            Checkout: <span class="badge badge-warning">${accommodation.checkout}</span>
+                                        </td>
+                                        <td>
+                                            Valor: <strong style="color:red;">R$${accommodation.price}</strong>
+                                        </td>
+                                    </tr>`
+                                    }
+                                codigoHTML+=`</tfoot>
+                            </table>
+                        </div>
+                    </div>`
     }
     codigoHTML += `</div>`
 
@@ -381,12 +475,7 @@ async function adicionarHospedagem(id) {
             await requisicaoPUT(`guests/${id}`, dado, null)
             $('#modalExibirDadosHospede').modal('hide');
             document.getElementById('modal').innerHTML = ``;
-            document.getElementById('nomeDoHospede').value = dado.name;
-            if (validaDadosCampo(['#nomeDoHospede'])) {
-                gerarListaDeHospedes('nome');
-            } else {
-                gerarListaDeHospedes('todos');
-            }
+            gerarListaDeHospedes(null,id);
         }, 300)
         await aguardeCarregamento(false);
 
@@ -449,11 +538,7 @@ async function apagarReferenciaHospedagem(id, id_cliente) {
         await excluirHospedagem(id);
         $('#modalExibirDadosHospede').modal('hide');
         document.getElementById('modal').innerHTML = ``;
-        if (validaDadosCampo(['#nomeDoHospede'])) {
-            gerarListaDeHospedes('nome');
-        } else {
-            gerarListaDeHospedes('todos');
-        }
+        gerarListaDeHospedes(null,id_cliente);
         await aguardeCarregamento(false);
 
     } catch (error) {
@@ -538,12 +623,7 @@ async function atualizarHospede(id) {
         let result = await requisicaoPUT(`guests/${id}`, dado, null)
         mensagemDeAviso(`Dados do Hospede atualizado com sucesso!`);
         document.getElementById('modal').innerHTML = ``;
-        document.getElementById('nomeDoHospede').value = dado.name;
-        if (validaDadosCampo(['#nomeDoHospede'])) {
-            gerarListaDeHospedes('nome');
-        } else {
-            gerarListaDeHospedes('todos');
-        }
+        gerarListaDeHospedes(null,id);
         await aguardeCarregamento(false);
     } catch (error) {
         mensagemDeErro(`Erro ao atualizar dados do hospede!`)
@@ -558,11 +638,7 @@ async function excluirHospede(id) {
         mensagemDeAviso(`Hospede excluído com sucesso!`);
         document.getElementById('modal').innerHTML = ``;
         await aguardeCarregamento(false);
-        if (validaDadosCampo(['#nomeDoHospede'])) {
-            gerarListaDeHospedes('nome');
-        } else {
-            gerarListaDeHospedes('todos');
-        }
+        gerarListaDeHospedes(null,id);
     } catch (error) {
         mensagemDeErro(`Erro ao excluir hospede!`)
     }
