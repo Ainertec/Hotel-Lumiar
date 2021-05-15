@@ -14,7 +14,8 @@ class ReportsController {
     guests.map( guest => {
         const guestvalid = guest.accommodations.find(accommodation => {
           const partesData = (accommodation.checkin).split("-");
-          return (partesData[0] >= partesDataInicio[0] && partesData[0] <= partesDataFinal[0] && partesData[1] >= partesDataInicio[1] && partesData[1] <= partesDataFinal[1] && partesData[2] >= partesDataInicio[2] && partesData[2] <= partesDataFinal[2]);
+          return ( (parseInt(partesData[0]+partesData[1]+partesData[2]) >= parseInt(partesDataInicio[0]+partesDataInicio[1]+partesDataInicio[2])) && (parseInt(partesData[0]+partesData[1]+partesData[2]) <= parseInt(partesDataFinal[0]+partesDataFinal[1]+partesDataFinal[2])))
+          //(partesData[0] >= partesDataInicio[0] && partesData[0] <= partesDataFinal[0] && partesData[1] >= partesDataInicio[1] && partesData[1] <= partesDataFinal[1] && partesData[2] >= partesDataInicio[2] && partesData[2] <= partesDataFinal[2]);
         })
 
         if(guestvalid){
