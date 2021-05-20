@@ -7,12 +7,14 @@ const express_1 = require("express");
 const guest_routes_1 = require("./guest.routes");
 const accommodations_routes_1 = require("./accommodations.routes");
 const resport_routes_1 = require("./resport.routes");
+const rule_routes_1 = require("./rule.routes");
 // validations
 const guestSchema_1 = __importDefault(require("../validations/guestSchema"));
 const accommodationSchema_1 = __importDefault(require("../validations/accommodationSchema"));
 ;
 const commonSchema_1 = require("../validations/commonSchema");
 const reportSchema_1 = require("../validations/reportSchema");
+const ruleSchema_1 = require("../validations/ruleSchema");
 const routes = express_1.Router();
 // guests
 const guestRouters = new guest_routes_1.GuestRoutes(routes);
@@ -25,4 +27,7 @@ const reportRoutes = new resport_routes_1.ReportRoutes(routes);
 reportRoutes.getRoutes({
     report: reportSchema_1.report,
 });
+// rutes
+const ruleRouters = new rule_routes_1.RuleRoutes(routes);
+ruleRouters.getRoutes({ rule: ruleSchema_1.rule, paramId: commonSchema_1.paramId });
 exports.default = routes;

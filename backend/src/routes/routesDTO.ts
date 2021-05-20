@@ -20,3 +20,7 @@ export interface IValidationsAccommodation {
 export interface IValidationReport {
   report: Joi.ObjectSchema;
 }
+export interface IValidationsRule {
+  rule: Joi.ObjectSchema;
+  paramId: IParamId;
+}

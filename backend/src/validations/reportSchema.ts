@@ -5,4 +5,3 @@ export const report = Joi.object().keys({
   initial: Joi.string().required(),
   final: Joi.string().required(),
 });
-

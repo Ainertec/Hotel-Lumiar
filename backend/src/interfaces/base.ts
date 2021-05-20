@@ -23,12 +23,13 @@ export interface Car {
   model: string;
   plate: string;
 }
-/*export interface Accommodation {
-  reference: AccommodationInterface;
-}*/
 export interface AccommodationInterface extends Document {
   checkin: string;
   checkout: string;
   fourth: string;
   price: number;
+}
+export interface RuleInterface extends Document {
+  description: string;
+  atention: boolean;
 }

@@ -276,7 +276,10 @@ function modalExibirDadosHospede(id) {
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="staticBackdropLabel"><span class="fas fa-user"></span> Dados do hospede</h5>
-                                <button onclick="" type="button" class="close btn-danger" data-dismiss="modal" aria-label="Close">
+                                <button type="button" onclick="imprimirViaHospede('${id}')" class="btn btn-outline-warning btn-sm" style="margin-left:10px;">
+                                    <span class="fas fa-print"></span> Via Hospede
+                                </button>
+                                <button type="button" class="close btn-danger" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                                 <div id="mensagemDeErroModal" class="justify-content-center"></div>
@@ -454,7 +457,6 @@ async function adicionarHospedagem(id) {
         await aguardeCarregamento(true);
         let result = await cadastrarHospedagem();
         setTimeout(async function () {
-            result
             await dado.accommodations.push({ _id: result.data._id });
 
             delete dado._id;
@@ -472,13 +474,17 @@ async function adicionarHospedagem(id) {
 
             dado.accommodations = serializadedAccommodations
 
-            await requisicaoPUT(`guests/${id}`, dado, null)
+            let result2 = await requisicaoPUT(`guests/${id}`, dado, null)
             $('#modalExibirDadosHospede').modal('hide');
             document.getElementById('modal').innerHTML = ``;
+            VETORDEHOSPEDES.find((element) => {
+                if(element._id == result2.data._id)
+                    element = result2.data
+            })
             gerarListaDeHospedes(null,id);
         }, 300)
         await aguardeCarregamento(false);
-
+        confirmarAcao('Imprimir via do hospede!','imprimirViaHospede(this.value)',`${id}`);
     } catch (error) {
         mensagemDeErro('Não foi possível adicionar a hospedagem para este hospede!')
     }

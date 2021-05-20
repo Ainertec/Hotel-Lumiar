@@ -41,60 +41,6 @@ function mensagemDeAviso(mensagem) {
     $('.toast').toast('show')
 }
 
-//funcao responsavel por imprimir na impressora
-function imprimirImpressora(idReferencia) {
-    let conteudo;
-
-    conteudo = `<!doctype html>
-        <html lang="pt-br">
-
-            <head>
-                <meta charset="utf-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-                <link href="fontawesome-free/css/all.css" rel="stylesheet">
-                <link rel="stylesheet" href="./bootstrap/css/bootstrap.min.css"
-                    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-                <title>Impressao</title>
-                <link rel="stylesheet" type="text/css" href="./bootstrap/css/escopo-css-pagina.css">
-                <style>
-                    .text-center{
-                        text-align: center;
-                    }
-                    label{
-                        font-size:14px;
-                    }
-                    table{
-                        font-size:14px;
-                    }
-                    .btn{
-                        display:none;
-                    }
-                </style>
-            </head>
-
-        <body>
-            <img src="img/logo.png" class="rounded mx-auto d-block" style="width: 100px; margin: 20px;" alt="...">
-            <h3 class="text-center">Impressão dados hospede<h3>`
-    conteudo += document.getElementById(idReferencia).innerHTML
-
-    conteudo += `<script>
-                    const $ = require('jquery');
-                    require('bootstrap');
-                    const Highcharts = require('highcharts');
-                    const { format, parseISO } = require('date-fns');
-            <script>
-        </body>
-    </html>`
-
-    let tela_impressao = window.open('about:blank', '_blank', 'nodeIntegration=yes');
-
-    tela_impressao.document.write(conteudo);
-    setTimeout(() => {
-        tela_impressao.window.print();
-        tela_impressao.window.close();
-    }, 1000);
-}
-
 //funcao responsavel por validar os dados preenchidos nos campos
 function validaDadosCampo(campo) {
     var validacao = true;

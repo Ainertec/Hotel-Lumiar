@@ -46,7 +46,6 @@ function telaRelatorio(){
   $('#modalClasseRelatorio').modal('show');
 }
 
-
 //funcao responsavel por buscar os dados e gerar a tabela de hospedagens
 async function gerarTabelaDeHospedagem(){
     await aguardeCarregamento(true);
@@ -56,7 +55,7 @@ async function gerarTabelaDeHospedagem(){
     codigoHTML+=`<h5 class="text-center" style="margin-top:30px;">Tabela de hospedagens</h5>`;
 
     for (const hospede of json.data) {
-        let ultimasHospedagens = retornaObjetoComDataMaisRecente(hospede.accommodations, document.getElementById('datainicio').value, document.getElementById('datafim').value)
+        let ultimasHospedagens = retornaObjetoEntreDatas(hospede.accommodations, document.getElementById('datainicio').value, document.getElementById('datafim').value)
     
         codigoHTML+=`<table class="table table-bordered">
                 <tr class="table-secondary">
@@ -159,14 +158,14 @@ async function gerarTabelaDeHospedagem(){
 
 }
 
-//funcao responsavel por retornar objeto com data mais recente
-function retornaObjetoComDataMaisRecente(objetos, dataInicio, dataFinal){
-    console.log(dataInicio)
-    let objetoFinal = [], partesDataInicio = dataInicio.split("-"), partesDataFinal = dataFinal.split("-");
-    
+//funcao responsavel por retornar objeto entre duas datas
+function retornaObjetoEntreDatas(objetos, dataInicio, dataFinal){
+    let objetoFinal = [], partesDataInicio = dataInicio.replace(/-/g,''), partesDataFinal = dataFinal.replace(/-/g,'');
+
     for (const objeto of objetos) {
-        let partesData = (objeto.checkin).split("-");
-        if(partesData[0] >= partesDataInicio[0] && partesData[0] <= partesDataFinal[0] && partesData[1] >= partesDataInicio[1] && partesData[1] <= partesDataFinal[1] && partesData[2] >= partesDataInicio[2] && partesData[2] <= partesDataFinal[2]){
+        let partesData = (objeto.checkin).replace(/-/g,'');
+        console.log(partesData,partesDataInicio,partesDataFinal)
+        if(parseInt(partesData) >= parseInt(partesDataInicio) && parseInt(partesData) <= parseInt(partesDataFinal)){
             objetoFinal.push(objeto);
         }
     }
