@@ -77,7 +77,7 @@ function telaDeHospedagem(id, tipo) {
 }
 
 //funcao responsavel por confirmar a excluisao de uma hospedagem
-function confirmarExclusaoHospedagem(id, id_cliente) {
+function confirmarExclusaoHospedagem(id,id_cliente) {
     let codigoHTML = ``;
 
     codigoHTML += `<div class="modal fade" id="modalAviso" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
@@ -93,7 +93,7 @@ function confirmarExclusaoHospedagem(id, id_cliente) {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Não</button>
-                    <button onclick="apagarReferenciaHospedagem('${id}','${id_cliente}');" type="button" class="btn btn-primary" data-dismiss="modal">Sim</button>
+                    <button onclick="excluirHospedagem('${id}','${id_cliente}');" type="button" class="btn btn-primary" data-dismiss="modal">Sim</button>
                 </div>
             </div>
         </div>
@@ -150,17 +150,16 @@ async function atualizarHospedagem(id) {
 }
 
 //funcao responsavel por excluir uma hospedagem
-async function excluirHospedagem(id) {
+async function excluirHospedagem(id,id_cliente) {
     try {
         await aguardeCarregamento(true);
         await requisicaoDELETE(`accommodations/${id}`, '', null);
         mensagemDeAviso(`Hospedagem excluida com sucesso!`);
         await aguardeCarregamento(false);
-        if (validaDadosCampo(['#nomeDoHospede'])) {
-            gerarListaDeHospedes('nome');
-        } else {
-            gerarListaDeHospedes('todos');
-        }
+
+        $('#modalExibirDadosHospede').modal('hide');
+        document.getElementById('modal').innerHTML = ``;
+        gerarListaDeHospedes(null,id_cliente);
     } catch (error) {
         mensagemDeErro(`Erro ao excluir dados de hospedagem!`);
     }

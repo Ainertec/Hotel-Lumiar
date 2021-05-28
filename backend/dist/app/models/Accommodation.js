@@ -1,7 +1,11 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 /* eslint-disable no-param-reassign */
 const mongoose_1 = require("mongoose");
+const Guest_1 = __importDefault(require("./Guest"));
 const AccommodationSchema = new mongoose_1.Schema({
     checkin: {
         type: String,
@@ -21,6 +25,14 @@ const AccommodationSchema = new mongoose_1.Schema({
     },
 }, {
     timestamps: true,
+});
+AccommodationSchema.post('findOneAndRemove', (document) => {
+    if (document) {
+        const accommodationId = document._id;
+        Guest_1.default.find({ accommodations: { $in: [accommodationId] } }).then((guests) => {
+            Promise.all(guests.map((guest) => Guest_1.default.findOneAndUpdate({ _id: guest._id }, { $pull: { accommodations: accommodationId } }, { new: true })));
+        });
+    }
 });
 /*AccommodationSchema.post<AccommodationInterface>(
   'findOneAndUpdate',

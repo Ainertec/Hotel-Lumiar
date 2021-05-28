@@ -515,43 +515,6 @@ async function alterarHospedagem(id, id_cliente) {
 
 }
 
-//funcao responsavel por excluir referencia de hospedagem do hospede
-async function apagarReferenciaHospedagem(id, id_cliente) {
-
-    try {
-        let dado = VETORDEHOSPEDES.find((element) => element._id == id_cliente);
-
-        await aguardeCarregamento(true);
-
-        delete dado._id;
-        delete dado.address._id;
-        delete dado.car._id;
-        delete dado.__v;
-        delete dado.createdAt;
-        delete dado.updatedAt;
-
-        let serializadedAccommodations = []
-
-        for (let accommodations of dado.accommodations) {
-            if (accommodations._id != id) {
-                serializadedAccommodations.push(accommodations._id)
-            }
-        }
-
-        dado.accommodations = serializadedAccommodations
-
-        await requisicaoPUT(`guests/${id_cliente}`, dado, null)
-        await excluirHospedagem(id);
-        $('#modalExibirDadosHospede').modal('hide');
-        document.getElementById('modal').innerHTML = ``;
-        gerarListaDeHospedes(null,id_cliente);
-        await aguardeCarregamento(false);
-
-    } catch (error) {
-        mensagemDeErro('Não foi excluir a hospedagem para este hospede!')
-    }
-}
-
 //funcao responsavel por cadastrar o hospede
 async function cadastrarHospede() {
     try {
