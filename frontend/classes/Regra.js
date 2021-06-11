@@ -45,9 +45,13 @@ async function telaRegras(){
                                             for (const iterator of json.data) {
                                                 VETORDEREGRAS.push(iterator);
                                                 codigoHTML+=`<li class="list-group-item d-flex justify-content-between align-items-center">
-                                                    <div class="col-10" style="padding:1vh">    
-                                                        ${iterator.description}
-                                                    </div>
+                                                    <div class="col-10" style="padding:1vh">`    
+                                                        if(iterator.atention){
+                                                            codigoHTML+=`<strong>${iterator.description}</strong>`
+                                                        }else{
+                                                            codigoHTML+=`${iterator.description}`
+                                                        }
+                                                    codigoHTML+=`</div>
                                                     <div class="col-2" style="padding:0">
                                                         <button onclick="carregarDadosRegra('${iterator._id}');" class="btn btn-info btn-sm">
                                                             <span class="fas fa-edit"></span>
